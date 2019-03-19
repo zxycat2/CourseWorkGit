@@ -16,19 +16,21 @@ public class MakeNode extends TreeNode {
         //Cast the comparable content to lower case for the alphabetically sorting to work properly
         super(makeName.toLowerCase());
         this.makeName = makeName;
+        //init the car tree
+        this.carTree = new CarTree();
     }
 
     //link to CarDetails
-    private CarDetailTree carDetailTree;
+    private CarTree carTree;
 
     //Getters
-    public CarDetailTree getCarDetailTree(){
-        return this.carDetailTree;
+    public CarTree getCarTree(){
+        return this.carTree;
     }
 
     //Setters
-    public void setCarDetailTree(CarDetailTree newCarDetailTree){
-        this.carDetailTree = newCarDetailTree;
+    public void setCarTree(CarTree newCarTree){
+        this.carTree = newCarTree;
     }
 
 }

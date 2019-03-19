@@ -1,4 +1,6 @@
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Tree {
     private TreeNode treeRoot = null;
@@ -8,6 +10,9 @@ public class Tree {
     }
     //Self-defined exception
     protected class NodeAlreadyExistsException extends Exception{
+
+    }
+    protected class NodeNotFoundException extends Exception{
 
     }
     //insert method for user to use
@@ -53,16 +58,20 @@ public class Tree {
     }
 
     //find
-    public TreeNode find(Comparable treeNodeContentToFind, TreeNode current){
+    public TreeNode find(Comparable treeNodeContentToFind, TreeNode current, Boolean printResult) throws NodeNotFoundException{
 
         TreeNode treeNodeForRecursiveSearch = null;
         if (current == null){
-            System.out.println("Match Not Found!");
-            return null;
+            if (printResult){
+                System.out.println("Match Not Found!");
+            }
+            throw new NodeNotFoundException();
         }else {
             int compareResult = treeNodeContentToFind.compareTo(current.getComparableContent());
             if (compareResult == 0){
-                System.out.println("Match Found!");
+                if (printResult){
+                    System.out.println("Match Found!");
+                }
                 return current;
             }else if (compareResult > 0){
                 treeNodeForRecursiveSearch = current.getNext();
@@ -70,15 +79,22 @@ public class Tree {
                 treeNodeForRecursiveSearch = current.getPrevious();
             }
         }
-        return this.find(treeNodeContentToFind, treeNodeForRecursiveSearch);
+        return this.find(treeNodeContentToFind, treeNodeForRecursiveSearch, printResult);
     }
 
     //remove
-    public void remove(Comparable treeNodeContentToRemove){
-        TreeNode nodeToBeRemoved = this.find(treeNodeContentToRemove, this.treeRoot);
-        if (nodeToBeRemoved == null){
-            System.out.println("Removal Did Not Conduct!");
-        }else {
+    public void remove(Comparable treeNodeContentToRemove, String nodeID){
+
+
+        try{
+            TreeNode nodeToBeRemoved = this.find(treeNodeContentToRemove, this.treeRoot, true);
+
+//            System.out.println(nodeToBeRemoved.getComparableContent());
+//            if ((nodeToBeRemoved.getParent()) != null){
+//                System.out.println((nodeToBeRemoved.getParent()).getComparableContent());
+//            }
+
+
             //When the node has no next and previous, set its parent's left/right to null
             if (nodeToBeRemoved.getNext() == null && nodeToBeRemoved.getPrevious() == null){
                 this.replaceNode(nodeToBeRemoved, null);
@@ -89,9 +105,11 @@ public class Tree {
                 this.replaceNode(nodeToBeRemoved, nodeToBeRemoved.getPrevious());
                 //When node has two sub nodes, replace with next largest
             }else if (nodeToBeRemoved.getNext() != null && nodeToBeRemoved.getPrevious() != null){
-                this.replaceWithNextLargest(nodeToBeRemoved, nodeToBeRemoved.getNext());
+                this.replaceWithNextLargest(nodeToBeRemoved, nodeToBeRemoved.getNext(), nodeID);
             }
             System.out.println("Removed!");
+        }catch (NodeNotFoundException e){
+            System.out.println("Removal Did Not Conduct!");
         }
     }
     //Help with removing node, do the simple replacing
@@ -100,33 +118,71 @@ public class Tree {
 
         //When removing the root
         if (nodeToBeRemoved.getParent() == null){
-            this.treeRoot = null;
+            if ((nodeToBeRemoved.getPrevious()) != null){
+                (nodeToBeRemoved.getPrevious()).setParent(null);
+                this.treeRoot = nodeToBeRemoved.getPrevious();
+            }else if ((nodeToBeRemoved.getNext()) != null){
+                (nodeToBeRemoved.getNext()).setParent(null);
+                this.treeRoot = nodeToBeRemoved.getNext();
+            }else {
+                this.treeRoot = null;
+            }
             //When removing other nodes
         }else if ((nodeToBeRemoved.getParent()).getNext() == nodeToBeRemoved){
             (nodeToBeRemoved.getParent()).setNext(replaceMent);
+            if (nodeToBeRemoved.getNext() != null || nodeToBeRemoved.getPrevious() != null){
+                replaceMent.setParent((nodeToBeRemoved.getParent()));
+            }
         }else {
             (nodeToBeRemoved.getParent()).setPrevious(replaceMent);
+            if (nodeToBeRemoved.getNext() != null || nodeToBeRemoved.getPrevious() != null){
+                replaceMent.setParent((nodeToBeRemoved.getParent()));
+            }
         }
 
     }
 
     //Help with removing node, will replace the node for removing with the next largest node
-    private void replaceWithNextLargest(TreeNode nodeToBeRemoved, TreeNode current){
-
+    private void replaceWithNextLargest(TreeNode nodeToBeRemoved, TreeNode current, String nodeID){
 
         if (current.getPrevious() == null) {
             nodeToBeRemoved.setComparableContent(current.getComparableContent());
+            switch (nodeID){
+                case "Make":
+                    ((MakeNode)nodeToBeRemoved).setMakeName(((MakeNode)current).getMakeName());
+                    break;
+                case "Car":
+                    ((CarNode)nodeToBeRemoved).setRegistrationNumber(((CarNode)current).getRegistrationNumber());
+                    ((CarNode)nodeToBeRemoved).setColor(((CarNode)current).getColor());
+                    ((CarNode)nodeToBeRemoved).setModel(((CarNode)current).getModel());
+                    break;
+            }
             if (current.getParent() == nodeToBeRemoved) {
                 (current.getParent()).setNext(current.getNext());
+                (current.getNext()).setParent(nodeToBeRemoved);
             } else {
                 (current.getParent()).setPrevious(current.getNext());
+                (current.getNext()).setParent(current.getParent());
             }
             //Clear out the current(Origin next largest)
             current.setNext(null);
             current.setComparableContent(null);
         } else {
-            this.replaceWithNextLargest(nodeToBeRemoved, current.getPrevious());
+            this.replaceWithNextLargest(nodeToBeRemoved, current.getPrevious(), nodeID);
         }
+
+//        if (current.left == null) {
+//            nodeForDeletion.object = current.object;
+//            if (parent == nodeForDeletion) {
+//                parent.right = current.right;
+//            } else {
+//                parent.left = current.right;
+//            }
+//            current.object = null;
+//            current.right = null;
+//        } else {
+//            this.replaceWithNextLargest(nodeForDeletion, current, current.left);
+//        }
     }
 
     //Display all the makes of cars inorder
@@ -143,5 +199,24 @@ public class Tree {
     @Override
     public String toString() {
         return this.display(this.treeRoot);
+    }
+
+    public List<TreeNode> getAllNodesInOrder(TreeNode current){
+        List<TreeNode> list = new ArrayList<TreeNode>();
+
+        if (current != null){
+            if (current.getPrevious() != null){
+                list.addAll(this.getAllNodesInOrder(current.getPrevious()));
+            }
+
+            list.add(current);
+
+            if (current.getNext() != null){
+                list.addAll(this.getAllNodesInOrder(current.getNext()));
+            }
+        }
+
+        return list;
+
     }
 }
