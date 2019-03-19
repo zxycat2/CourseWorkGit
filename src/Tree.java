@@ -16,22 +16,25 @@ public class Tree {
 
     }
     //insert method for user to use
-    public void insert(TreeNode treeNodeToInsert) throws NodeAlreadyExistsException{
+    public void insert(TreeNode treeNodeToInsert, Boolean printResult) throws NodeAlreadyExistsException{
         //when the tree is empty
         if (this.treeRoot == null){
             this.treeRoot = treeNodeToInsert;
-            System.out.println("Inserted!");
+            if (printResult){
+                System.out.println("Inserted!");
+            }
+
         }else {
-            this.insertWhenTheTreeIsNotEmpty(treeNodeToInsert, this.treeRoot);
+            this.insertWhenTheTreeIsNotEmpty(treeNodeToInsert, this.treeRoot, printResult);
         }
     }
     //inner insert function when the tree is not empty
-    private void insertWhenTheTreeIsNotEmpty(TreeNode treeNodeToInsert, TreeNode currentTreeNode) throws NodeAlreadyExistsException{
+    private void insertWhenTheTreeIsNotEmpty(TreeNode treeNodeToInsert, TreeNode currentTreeNode, Boolean printResult) throws NodeAlreadyExistsException{
         //when tree is empty
-        if (this.treeRoot == null){
-            this.treeRoot = treeNodeToInsert;
-            return;
-        }
+//        if (this.treeRoot == null){
+//            this.treeRoot = treeNodeToInsert;
+//            return;
+//        }
         //when not empty
         int compareResult = (treeNodeToInsert.getComparableContent()).compareTo(currentTreeNode.getComparableContent());
         if (compareResult == 0){
@@ -41,9 +44,12 @@ public class Tree {
             if (currentTreeNode.getNext() == null){
                 currentTreeNode.setNext(treeNodeToInsert);
                 treeNodeToInsert.setParent(currentTreeNode);
-                System.out.println("Inserted!");
+                if (printResult) {
+                    System.out.println("Inserted!");
+                }
+
             }else {
-                this.insertWhenTheTreeIsNotEmpty(treeNodeToInsert, currentTreeNode.next);
+                this.insertWhenTheTreeIsNotEmpty(treeNodeToInsert, currentTreeNode.next, printResult);
             }
 
         }else if (compareResult < 0){
@@ -52,7 +58,7 @@ public class Tree {
                 treeNodeToInsert.setParent(currentTreeNode);
                 System.out.println("Inserted!");
             }else {
-                this.insertWhenTheTreeIsNotEmpty(treeNodeToInsert, currentTreeNode.previous);
+                this.insertWhenTheTreeIsNotEmpty(treeNodeToInsert, currentTreeNode.previous, printResult);
             }
         }
     }
@@ -83,7 +89,7 @@ public class Tree {
     }
 
     //remove
-    public void remove(Comparable treeNodeContentToRemove, String nodeID){
+    public void remove(Comparable treeNodeContentToRemove, String nodeID, Boolean printResult){
 
 
         try{
@@ -107,9 +113,13 @@ public class Tree {
             }else if (nodeToBeRemoved.getNext() != null && nodeToBeRemoved.getPrevious() != null){
                 this.replaceWithNextLargest(nodeToBeRemoved, nodeToBeRemoved.getNext(), nodeID);
             }
-            System.out.println("Removed!");
+            if (printResult){
+                System.out.println("Removed!");
+            }
         }catch (NodeNotFoundException e){
-            System.out.println("Removal Did Not Conduct!");
+            if (printResult){
+                System.out.println("Removal Did Not Conduct!");
+            }
         }
     }
     //Help with removing node, do the simple replacing
@@ -218,5 +228,32 @@ public class Tree {
 
         return list;
 
+    }
+
+    public void balanceTheTree(){
+        List<TreeNode> nodesList = this.getAllNodesInOrder(this.getTreeRoot());
+        int midNumber = (nodesList.size()/2);
+        //clear all the nodes(delete next, previous and parent)
+        for (int index = 0; index < nodesList.size(); index ++){
+            nodesList.get(index).setParent(null);
+            nodesList.get(index).setNext(null);
+            nodesList.get(index).setPrevious(null);
+        }
+        this.treeRoot = null;
+        //Insert them again
+        for (int i = midNumber +1; i < nodesList.size(); i++) {
+            try {
+                this.insert(nodesList.get(i), false);
+            }catch (Exception e){
+
+            }
+        }
+        for (int i = 0; i< midNumber; i++) {
+            try {
+                this.insert(nodesList.get(i), false);
+            }catch (Exception e){
+
+            }
+        }
     }
 }

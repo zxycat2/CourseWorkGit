@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,10 @@ public class MakeTree extends Tree {
         try {
             Map<String, TreeNode> map = this.findCarFromAllMake(carRegistrationNumber);
             MakeNode makeNode = (MakeNode)(map.get("MakeNode"));
-            makeNode.getCarTree().remove(carRegistrationNumber, "Car");
+            CarNode carNode = (CarNode)(map.get("CarNode"));
+            makeNode.updateModelMap(carNode.getModel(), false);
+            makeNode.getCarTree().remove(carRegistrationNumber, "Car", true);
+            (makeNode.getCarTree()).balanceTheTree();
         }catch (NodeNotFoundException e){
             System.out.println("Removal did not conduct!");
         }
