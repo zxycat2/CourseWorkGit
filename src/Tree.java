@@ -95,11 +95,6 @@ public class Tree {
         try{
             TreeNode nodeToBeRemoved = this.find(treeNodeContentToRemove, this.treeRoot, true);
 
-//            System.out.println(nodeToBeRemoved.getComparableContent());
-//            if ((nodeToBeRemoved.getParent()) != null){
-//                System.out.println((nodeToBeRemoved.getParent()).getComparableContent());
-//            }
-
 
             //When the node has no next and previous, set its parent's left/right to null
             if (nodeToBeRemoved.getNext() == null && nodeToBeRemoved.getPrevious() == null){
@@ -181,18 +176,6 @@ public class Tree {
             this.replaceWithNextLargest(nodeToBeRemoved, current.getPrevious(), nodeID);
         }
 
-//        if (current.left == null) {
-//            nodeForDeletion.object = current.object;
-//            if (parent == nodeForDeletion) {
-//                parent.right = current.right;
-//            } else {
-//                parent.left = current.right;
-//            }
-//            current.object = null;
-//            current.right = null;
-//        } else {
-//            this.replaceWithNextLargest(nodeForDeletion, current, current.left);
-//        }
     }
 
     //Display all the makes of cars inorder
@@ -241,6 +224,13 @@ public class Tree {
         }
         this.treeRoot = null;
         //Insert them again
+        for (int i = 0; i<= midNumber; i++) {
+            try {
+                this.insert(nodesList.get(i), false);
+            }catch (Exception e){
+
+            }
+        }
         for (int i = midNumber +1; i < nodesList.size(); i++) {
             try {
                 this.insert(nodesList.get(i), false);
@@ -248,12 +238,6 @@ public class Tree {
 
             }
         }
-        for (int i = 0; i< midNumber; i++) {
-            try {
-                this.insert(nodesList.get(i), false);
-            }catch (Exception e){
 
-            }
-        }
     }
 }
